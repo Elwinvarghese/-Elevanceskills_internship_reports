@@ -1,0 +1,263 @@
+﻿Internship Project Report
+Technical Analysis and Documentation of the Hack The Box Scaffold Machine
+Project Title: Technical Cybersecurity Write-Up on HTB Scaffold
+Platform: Hack The Box (HTB)
+Documentation Platform: Medium
+Internship Organization: Elevanceskills
+Project Type: Cybersecurity Research and Technical Documentation
+Prepared By: Elwin Varghese S
+Project Date: 27/10/2016
+
+1. Project Overview
+As part of my cybersecurity internship, I worked on preparing a detailed technical write-up based on the Scaffold machine from Hack The Box. The objective of this project was to study a Windows Active Directory environment, understand the vulnerabilities and misconfigurations described in the available walkthrough material, and organize the technical findings into a structured article suitable for publication on Medium.
+The project focused on understanding how multiple security weaknesses can be connected to form an attack path. These included XML External Entity (XXE) vulnerabilities, credential exposure, Active Directory permissions, remote command execution, certificate-based authentication, and privilege escalation.
+In addition to studying the technical aspects, I focused on documenting the investigation process, explaining unsuccessful approaches, identifying the security implications of the findings, and presenting remediation recommendations.
+This project helped me understand the importance of technical documentation in cybersecurity, particularly when explaining complex attack paths in a clear and professional manner.
+2. Project Objectives
+The main objectives of this project were:
+    1. To study the technical details of the HTB Scaffold machine.
+    2. To understand the role of network reconnaissance and service enumeration in a penetration test.
+    3. To investigate the reported XXE vulnerability associated with Microsoft Deployment Toolkit (MDT).
+    4. To understand credential exposure and its possible impact on Active Directory security.
+    5. To study Active Directory Certificate Services (AD CS), certificate templates, and certificate-based authentication.
+    6. To understand how delegated directory permissions can introduce privilege-escalation risks.
+    7. To document unsuccessful attack paths and the lessons learned from them.
+    8. To identify security weaknesses and recommend suitable defensive measures.
+    9. To prepare a well-organized technical article for Medium.
+    10. To improve my cybersecurity research, technical writing, and professional communication skills.
+3. Project Scope
+The project covered the analysis and documentation of several technologies commonly found in Windows enterprise environments.
+The scope included:
+    • Network reconnaissance and service discovery.
+    • Microsoft Deployment Toolkit and configuration exposure.
+    • XML External Entity (XXE) vulnerabilities.
+    • Credential handling and Active Directory enumeration.
+    • LDAP and delegated access-control permissions.
+    • Windows remote administration and DCOM.
+    • Certificate discovery and analysis.
+    • Active Directory Certificate Services and certificate templates.
+    • Certificate-based Kerberos authentication.
+    • Software deployment workflows and role-based access control.
+    • Privilege-escalation analysis.
+    • Documentation of failed approaches.
+    • Security remediation and mitigation strategies.
+The project was primarily focused on technical analysis and documentation using available walkthrough material. The report should not be interpreted as independent reproduction of every step unless those steps were personally tested and verified in an authorized lab environment.
+4. Tools and Technologies Studied
+The following tools and technologies were relevant to the project.
+4.1 Nmap
+Nmap was studied as a network reconnaissance tool used to identify reachable ports and services. Service discovery helps establish the initial attack surface and determine which services require further investigation.
+4.2 Burp Suite
+Burp Suite is a web application testing platform that can be used to inspect HTTP requests and responses, analyze application behavior, and test web security issues within an authorized scope. Its relevance to this project was in understanding the methodology for investigating application-layer vulnerabilities.
+4.3 Python
+Python was relevant to the discussion of custom HTTP listeners and basic diagnostic scripts. Such components can help troubleshoot communication and output-retrieval problems during authorized laboratory testing.
+4.4 LDAP and Active Directory
+LDAP was studied as a protocol for querying directory information. Active Directory enumeration helps identify users, groups, directory attributes, and access-control relationships that may be relevant to security analysis.
+4.5 OpenSSL
+OpenSSL was relevant to examining certificate properties, including certificate subjects, issuers, validity periods, and key usage extensions.
+4.6 Certipy
+Certipy was studied as a tool for enumerating and analyzing Active Directory Certificate Services configurations. It helps identify certificate authorities, templates, enrollment permissions, and potential certificate-related security weaknesses.
+4.7 Windows Administration Technologies
+DCOM, PowerShell, Kerberos, Windows Integrated Authentication, and Windows remote-management mechanisms were examined as part of the broader attack-path analysis.
+5. Technical Analysis
+5.1 Network Reconnaissance and Service Discovery
+The first stage of the documented investigation involved identifying the target's exposed services. Reconnaissance is important because it provides an initial understanding of the environment and helps prioritize further testing.
+The walkthrough material described an MDT-related monitoring service running on a non-standard port. This discovery directed attention toward the deployment infrastructure rather than limiting the investigation to commonly exposed Windows services.
+Key learning: Service enumeration should be followed by investigation of the service's functionality, authentication requirements, configuration, and relationship with other systems.
+5.2 Microsoft Deployment Toolkit and XXE
+The next area of analysis involved Microsoft Deployment Toolkit and its monitoring functionality.
+The supplied walkthrough described an XML External Entity vulnerability that exposed deployment-related configuration information. Such exposure can be serious because deployment systems may contain credentials or configuration values used by automated processes.
+The analysis highlighted how an application-layer weakness can become an entry point into a wider enterprise environment.
+Security implications:
+    • Sensitive configuration information may be disclosed.
+    • Service credentials may be exposed.
+    • Deployment resources may become accessible to unauthorized identities.
+    • The impact may extend beyond the vulnerable application.
+Recommended remediation:
+    • Disable unsafe external entity processing.
+    • Restrict access to deployment configuration files.
+    • Avoid storing reusable credentials in deployment artifacts.
+    • Apply appropriate patches and secure parser configurations.
+    • Rotate credentials if exposure is confirmed.
+5.3 Credential Exposure and Active Directory Enumeration
+The documented investigation then examined the relationship between exposed deployment information and domain identities.
+The main focus was understanding what a discovered identity could access and whether its permissions provided additional opportunities for investigation.
+Active Directory enumeration was important because a domain account's effective access may depend on its group membership, directory permissions, and access to particular services.
+The analysis reinforced that discovering credentials does not automatically mean administrative access has been obtained. Each identity must be evaluated according to its actual permissions.
+Key learning: Credentials should be assessed in context, with attention to least privilege, reuse, service access, and directory relationships.
+5.4 Remote Command Execution and DCOM
+The walkthrough described a remote-execution path involving DCOM and the MMC20 application interface.
+An important technical issue involved retrieving command output. The normal output mechanism depended on SMB access that was not available in the observed environment.
+The investigation therefore considered an alternative HTTP callback approach to retrieve output from the remote execution context.
+This section helped illustrate the difference between command execution and output retrieval. A command may execute successfully even when its results cannot be collected through the expected channel.
+Key learning: Troubleshooting should separate execution failures from network, permission, and output-channel failures.
+5.5 Certificate Discovery and Analysis
+The supplied material described the discovery of developer certificate files stored in a development area.
+The analysis considered the purpose of the certificates, their usage extensions, and whether they could be used for authentication.
+PKCS#12 files are particularly sensitive because they may contain both certificates and private keys. If these files are exposed to unauthorized users, they may create risks beyond ordinary information disclosure.
+An initial certificate-based authentication attempt was rejected by the domain controller. This demonstrated that a certificate's client-authentication usage does not guarantee that it will be accepted for domain authentication.
+Recommended remediation:
+    • Protect private keys and certificate containers.
+    • Restrict certificate enrollment and access to signing assets.
+    • Review certificate usage and identity information.
+    • Monitor unexpected certificate enrollment.
+    • Maintain appropriate certificate trust and mapping configurations.
+5.6 Active Directory Certificate Services
+Active Directory Certificate Services was a major focus of the project.
+The investigation considered certificate templates, enrollment permissions, client-authentication usage, and the way certificate identity information is constructed from directory attributes.
+Certificate services can introduce security risks when enrollment permissions are too broad or when certificate-to-account mapping does not reliably establish the intended identity.
+The walkthrough also described investigating an ESC8-related certificate relay possibility. The attempted path did not produce the privileged certificate required to continue, demonstrating that identifying a potentially vulnerable configuration is not the same as proving a successful exploitation path.
+Key learning: Certificate security depends on the combined configuration of templates, enrollment permissions, identity information, certificate authority settings, and domain-controller protections.
+5.7 Software Deployment Portal
+Another branch of the investigation involved an internal software deployment portal.
+The supplied material described reviewing application source code and examining the distinction between package upload, validation, approval, and deployment.
+A package could pass technical validation but still be blocked by role-based authorization controls. The identity used in the investigation had development-related capabilities but lacked the permission required to complete the approval workflow.
+This demonstrated the importance of separating technical validation from authorization.
+Recommended remediation:
+    • Enforce strict role-based access control.
+    • Separate package development from approval and deployment.
+    • Protect code-signing certificates.
+    • Restrict write access to deployment directories.
+    • Audit package uploads, approvals, and deployment actions.
+5.8 Active Directory Permissions and Certificate Mapping
+The most important security relationship described in the supplied walkthrough involved delegated permissions over a directory object and the userPrincipalName attribute.
+A UPN is an identity attribute that can be used in authentication-related workflows. If an account has permission to modify another identity's UPN, and certificate enrollment relies on that information, the modification may affect how the issued certificate is associated with an account.
+The walkthrough connected this permission relationship with certificate template configuration and certificate-mapping behavior on the domain controller.
+This demonstrated how separate configuration weaknesses can combine into a privilege-escalation path.
+The broader lesson is that directory permissions must be reviewed in context. A permission that appears limited to modifying an attribute can have a larger impact when another service trusts that attribute to establish identity.
+Recommended remediation:
+    • Audit delegated permissions on sensitive Active Directory objects.
+    • Restrict write access to identity-related attributes.
+    • Apply current supported Windows security updates.
+    • Enforce strong certificate mapping.
+    • Review certificate templates and enrollment permissions.
+    • Monitor unusual UPN changes and certificate enrollment activity.
+5.9 Kerberos Authentication Troubleshooting
+The supplied material described an initial Kerberos authentication failure caused by clock skew between systems.
+Kerberos relies on time-sensitive authentication data, so significant clock differences can prevent otherwise valid authentication attempts from succeeding.
+This was an important troubleshooting lesson because a clock-skew error is different from a certificate trust or identity-mapping failure.
+Key learning: Authentication errors should be interpreted carefully. Identifying the actual cause helps avoid unnecessary configuration changes and incorrect conclusions.
+6. Analysis of Failed Approaches
+An important part of the project was documenting approaches that did not lead directly to the final objective.
+The walkthrough material described several unsuccessful investigation paths, including certificate relay attempts, computer-account manipulation, SQL Server investigation, local privilege-escalation checks, service-control attempts, and software deployment approval.
+These approaches helped establish the limits of the available permissions and eliminate assumptions about the environment.
+Investigation area
+Outcome described in the material
+Learning
+Developer certificate authentication
+Authentication was rejected
+Certificate usage alone does not guarantee domain authentication
+Certificate relay
+No usable privileged certificate was obtained
+A potential configuration weakness must be validated
+Computer-account manipulation
+A required operation was rejected
+Attack prerequisites must be verified
+SQL Server investigation
+No useful access path was identified
+Not every exposed service provides a viable route
+Local privilege escalation
+No practical escalation route was established through the tested approaches
+The investigation may need to shift to directory permissions
+Service control
+Access was denied
+Effective permissions determine available actions
+Software deployment
+Package approval was blocked
+Upload and validation permissions do not imply deployment authority
+Documenting failed approaches made the write-up more useful because it explained the investigation's reasoning rather than presenting only the successful path.
+7. Security Findings and Recommendations
+The major security themes identified in the supplied walkthrough material are summarized below.
+Security area
+Potential risk
+Recommended mitigation
+XML processing
+Unauthorized access to external resources or configuration data
+Disable unsafe external entity processing
+Deployment configuration
+Exposure of reusable credentials
+Restrict file access and use secure secret management
+Active Directory permissions
+Unauthorized modification of identity attributes
+Audit and minimize delegated permissions
+Certificate services
+Certificates issued with unintended identity implications
+Review templates, enrollment permissions, and mapping policies
+Certificate private keys
+Unauthorized use of signing or authentication material
+Protect private keys and restrict access
+Software deployment
+Separation-of-duty weaknesses
+Enforce distinct developer, approver, and deployment roles
+Kerberos
+Authentication failures due to time differences
+Maintain reliable time synchronization
+Security monitoring
+Delayed detection of suspicious identity changes
+Monitor directory changes, enrollment events, and authentication activity
+These recommendations illustrate how the technical findings can be translated into practical defensive measures.
+8. Preparation of the Medium Write-Up
+After organizing the technical findings, I prepared a structured article intended for publication on Medium.
+The article was organized to explain the investigation in a logical sequence, beginning with reconnaissance and moving through application analysis, identity investigation, certificate services, failed approaches, and remediation.
+The documentation work included:
+    1. Organizing the investigation into technical sections.
+    2. Explaining the role of each relevant technology.
+    3. Connecting individual weaknesses into a broader security narrative.
+    4. Summarizing failed approaches and their outcomes.
+    5. Preparing an attack-path diagram to illustrate the relationships between findings.
+    6. Adding defensive recommendations.
+    7. Reviewing the article for clarity, consistency, and professional presentation.
+    8. Preparing a title and publication format suitable for a technical audience.
+The purpose of the write-up was to make the technical concepts understandable while retaining the important relationships between the vulnerabilities and configurations discussed.
+The article was also intended to support knowledge sharing and invite feedback from the cybersecurity community.
+9. Skills and Knowledge Developed
+This project contributed to my understanding of several cybersecurity concepts.
+Technical knowledge
+    • Network reconnaissance and service enumeration.
+    • Windows and Active Directory security.
+    • LDAP and directory access-control permissions.
+    • XXE and configuration exposure.
+    • Certificate services and certificate-based authentication.
+    • Kerberos troubleshooting.
+    • Role-based authorization and software deployment security.
+Analytical skills
+    • Understanding relationships between vulnerabilities.
+    • Evaluating the significance of unsuccessful attempts.
+    • Distinguishing confirmed findings from assumptions.
+    • Identifying security boundaries and authorization requirements.
+    • Connecting technical issues with practical remediation.
+Documentation skills
+    • Writing structured technical reports.
+    • Explaining complex security concepts.
+    • Creating attack-path diagrams.
+    • Preparing findings and remediation tables.
+    • Organizing technical content for a public audience.
+Professional skills
+    • Research and independent learning.
+    • Technical communication.
+    • Critical thinking.
+    • Evidence-based reporting.
+    • Receiving and applying technical feedback.
+10. Challenges Encountered
+The main challenge was organizing a technically complex investigation into a clear and readable article.
+The environment involved several different Windows technologies, and each had its own authentication, authorization, and configuration requirements. Understanding the relationship between these components was more difficult than simply listing the tools used.
+Another challenge was explaining unsuccessful approaches without making the report confusing. These attempts needed to be presented as meaningful investigative results rather than as unnecessary details.
+A further challenge was distinguishing between the behavior described in the walkthrough material and findings that could be independently verified. Maintaining this distinction is important for technical accuracy and professional reporting.
+11. Project Outcome
+The main deliverable was a structured technical write-up about the HTB Scaffold machine, prepared for Medium.
+The article covers the reported attack path, relevant Windows and Active Directory technologies, unsuccessful investigation branches, security implications, and recommended remediation measures.
+The project also produced a more organized understanding of how application weaknesses, exposed credentials, delegated directory permissions, and certificate-based authentication can interact.
+The final publication status should be recorded accurately as one of the following, depending on the actual state of the work:
+    • Draft completed.
+    • Article under review.
+    • Article published on Medium.
+12. Conclusion
+The Scaffold write-up project was a valuable learning activity during my cybersecurity internship. It helped me explore the relationships between application security, Windows administration, Active Directory permissions, and certificate-based authentication.
+One of the most important lessons was that a security weakness may become significantly more serious when another system trusts the information or permissions affected by that weakness. Understanding these relationships is essential when analyzing complex enterprise environments.
+Preparing the Medium article also helped me improve my ability to organize technical information, document failed approaches, explain security findings, and recommend defensive measures.
+Overall, this project strengthened my technical understanding and documentation skills while giving me an opportunity to share cybersecurity knowledge in a structured and professional format.
+
+Report prepared by: Elwin Varghese S
+Project: HTB Scaffold Technical Write-Up
+Date: 28/10/2026
+Medium article URL: https://medium.com/@elwinvarghese07/hack-the-box-scaffold-chaining-xxe-active-directory-acl-abuse-and-certificate-based-privilege-1faec9a8ea6f?sharedUserId=elwinvarghese07
+
